@@ -1,4 +1,4 @@
-FROM golang:1.24-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
@@ -17,18 +17,20 @@ COPY . .
 # Build binary
 RUN CGO_ENABLED=0 GOOS=linux go build -o server ./cmd/main.go
 
-FROM alpine:latest
+# FROM alpine:latest
+FROM scratch
 
-WORKDIR /app
+# WORKDIR /app
 
 # Install certificates
-RUN apk add --no-cache ca-certificates
+# RUN apk add --no-cache ca-certificates
 
 # Copy built binary
-COPY --from=builder /app/server .
+# COPY --from=builder /app/server .
 
 # Copy env file if needed
-COPY .env .env
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /app/server .
 
 # Expose app port
 EXPOSE 8000

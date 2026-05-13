@@ -10,14 +10,15 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
 
-	databaseURL := os.Getenv("DATABASE_URL")
+	databaseURL := os.Getenv("DB_URL")
 
 	conn := db.NewDB(databaseURL)
+	defer conn.Close()
 
 	r := gin.Default()
 
@@ -29,5 +30,8 @@ func main() {
 		})
 	})
 
-	r.Run(":8080")
+	err := r.Run(":8000")
+	if err != nil {
+		log.Fatal(err)
+	}
 }
