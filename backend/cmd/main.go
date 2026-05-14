@@ -11,14 +11,14 @@ import (
 
 func main() {
 	godotenv.Load()
-	// if err != nil {
-	// 	log.Fatal("Error loading .env file")
-	// }
 
 	databaseURL := os.Getenv("DB_URL")
 
 	conn := db.NewDB(databaseURL)
 	defer conn.Close()
+
+	store := db.NewStore(conn)
+	_ = store
 
 	r := gin.Default()
 
