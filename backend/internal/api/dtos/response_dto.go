@@ -10,12 +10,6 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-// ReconcileResponse reports whether stored and computed balances match.
-type ReconcileResponse struct {
-	Message string `json:"message"`
-	Matched bool   `json:"matched"`
-}
-
 // StructuredResponse is the standard response format for all API endpoints
 // @Description Standard response format containing success status, HTTP status code, message, and optional payload
 type StructuredResponse struct {

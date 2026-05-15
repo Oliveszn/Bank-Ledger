@@ -66,17 +66,17 @@ const listEntriesByAccount = `-- name: ListEntriesByAccount :many
 SELECT id, account_id, debit, credit, transaction_id, operation_type, description, created_at FROM entries
 WHERE account_id = $1
 ORDER BY created_at DESC
-LIMIT $2::int OFFSET $3::int
+LIMIT $2 OFFSET $3
 `
 
 type ListEntriesByAccountParams struct {
 	AccountID pgtype.UUID
-	Column2   int32
-	Column3   int32
+	Limit     int32
+	Offset    int32
 }
 
 func (q *Queries) ListEntriesByAccount(ctx context.Context, arg ListEntriesByAccountParams) ([]Entry, error) {
-	rows, err := q.db.Query(ctx, listEntriesByAccount, arg.AccountID, arg.Column2, arg.Column3)
+	rows, err := q.db.Query(ctx, listEntriesByAccount, arg.AccountID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

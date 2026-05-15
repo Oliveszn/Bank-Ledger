@@ -126,6 +126,70 @@ func (q *Queries) GetAccountForUpdate(ctx context.Context, id pgtype.UUID) (Acco
 	return i, err
 }
 
+const getAccountWithEntries = `-- name: GetAccountWithEntries :one
+SELECT id, owner_id, name, balance, currency, is_system, is_active, created_at FROM accounts
+WHERE id = $1
+`
+
+func (q *Queries) GetAccountWithEntries(ctx context.Context, id pgtype.UUID) (Account, error) {
+	row := q.db.QueryRow(ctx, getAccountWithEntries, id)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.OwnerID,
+		&i.Name,
+		&i.Balance,
+		&i.Currency,
+		&i.IsSystem,
+		&i.IsActive,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getEntriesByAccountAndDateRange = `-- name: GetEntriesByAccountAndDateRange :many
+SELECT id, account_id, debit, credit, transaction_id, operation_type, description, created_at FROM entries
+WHERE account_id = $1
+  AND created_at >= $2
+  AND created_at <= $3
+ORDER BY created_at ASC
+`
+
+type GetEntriesByAccountAndDateRangeParams struct {
+	AccountID   pgtype.UUID
+	CreatedAt   pgtype.Timestamptz
+	CreatedAt_2 pgtype.Timestamptz
+}
+
+func (q *Queries) GetEntriesByAccountAndDateRange(ctx context.Context, arg GetEntriesByAccountAndDateRangeParams) ([]Entry, error) {
+	rows, err := q.db.Query(ctx, getEntriesByAccountAndDateRange, arg.AccountID, arg.CreatedAt, arg.CreatedAt_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Entry
+	for rows.Next() {
+		var i Entry
+		if err := rows.Scan(
+			&i.ID,
+			&i.AccountID,
+			&i.Debit,
+			&i.Credit,
+			&i.TransactionID,
+			&i.OperationType,
+			&i.Description,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSettlementAccount = `-- name: GetSettlementAccount :one
 SELECT id, owner_id, name, balance, currency, is_system, is_active, created_at FROM accounts
 WHERE is_system = TRUE AND name = 'Settlement Account'

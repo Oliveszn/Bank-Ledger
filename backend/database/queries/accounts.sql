@@ -60,3 +60,14 @@ SELECT DISTINCT t.* FROM transactions t
 INNER JOIN entries e ON e.transaction_id = t.id
 WHERE e.account_id = $1
 ORDER BY t.created_at DESC;
+
+-- name: GetAccountWithEntries :one
+SELECT * FROM accounts
+WHERE id = $1;
+
+-- name: GetEntriesByAccountAndDateRange :many
+SELECT * FROM entries
+WHERE account_id = $1
+  AND created_at >= $2
+  AND created_at <= $3
+ORDER BY created_at ASC;

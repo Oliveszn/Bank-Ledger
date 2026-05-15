@@ -45,7 +45,10 @@ func main() {
 	txSvc := service.NewTransactionService(store)
 	txHandler := handler.NewTransactionHandler(txSvc)
 
-	r := router.Setup(authHandler, accountHandler, txHandler)
+	entrySvc := service.NewEntryService(store)
+	entryHandler := handler.NewEntryHandler(entrySvc)
+
+	r := router.Setup(authHandler, accountHandler, txHandler, entryHandler)
 
 	if err := r.Run(":8000"); err != nil {
 		logger.Log.Error("failed to connect database", "error", err)

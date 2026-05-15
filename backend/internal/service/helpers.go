@@ -4,6 +4,7 @@ import (
 	"double-entry/internal/api/dtos"
 	"double-entry/internal/db/sqlc"
 	"errors"
+	"math"
 	"math/big"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -60,6 +61,19 @@ func parsePgtypeUUID(id string) (pgtype.UUID, error) {
 	var uid pgtype.UUID
 	err := uid.Scan(id)
 	return uid, err
+}
+
+// numericToBigFloat converts pgtype.Numeric to big.Float for arithmetic
+func numericToBigFloat(n pgtype.Numeric) *big.Float {
+	if !n.Valid || n.Int == nil {
+		return new(big.Float).SetFloat64(0)
+	}
+	f := new(big.Float).SetInt(n.Int)
+	if n.Exp != 0 {
+		exp := new(big.Float).SetFloat64(math.Pow10(int(n.Exp)))
+		f.Mul(f, exp)
+	}
+	return f
 }
 
 // toTransactionResponse maps sqlc types to the response DTO
