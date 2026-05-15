@@ -14,6 +14,7 @@ CREATE TABLE accounts (
     balance NUMERIC(19,4) NOT NULL DEFAULT 0.0000,
     currency TEXT NOT NULL DEFAULT 'USD',
     is_system BOOLEAN NOT NULL DEFAULT FALSE,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -42,4 +43,3 @@ CREATE TABLE entries (
 -- index for fast lookups (common in ledgers)
 CREATE INDEX idx_entries_transaction_id ON entries(transaction_id);
 CREATE INDEX idx_entries_account_id ON entries(account_id);
-

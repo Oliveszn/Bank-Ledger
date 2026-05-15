@@ -14,7 +14,7 @@ import (
 const createAccount = `-- name: CreateAccount :one
 INSERT INTO accounts (owner_id, name, currency, is_system)
 VALUES ($1, $2, $3, $4)
-RETURNING id, owner_id, name, balance, currency, is_system, created_at
+RETURNING id, owner_id, name, balance, currency, is_system, is_active, created_at
 `
 
 type CreateAccountParams struct {
@@ -39,13 +39,50 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 		&i.Balance,
 		&i.Currency,
 		&i.IsSystem,
+		&i.IsActive,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
+const createTransaction = `-- name: CreateTransaction :one
+
+INSERT INTO transactions (description, operation_type)
+VALUES ($1, $2)
+RETURNING id, description, operation_type, created_at
+`
+
+type CreateTransactionParams struct {
+	Description   pgtype.Text
+	OperationType OperationType
+}
+
+// lock prevents concurrent transactions from reading a stale balance.
+func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error) {
+	row := q.db.QueryRow(ctx, createTransaction, arg.Description, arg.OperationType)
+	var i Transaction
+	err := row.Scan(
+		&i.ID,
+		&i.Description,
+		&i.OperationType,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const deactivateAccount = `-- name: DeactivateAccount :exec
+UPDATE accounts
+SET is_active = false
+WHERE id = $1
+`
+
+func (q *Queries) DeactivateAccount(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deactivateAccount, id)
+	return err
+}
+
 const getAccount = `-- name: GetAccount :one
-SELECT id, owner_id, name, balance, currency, is_system, created_at FROM accounts
+SELECT id, owner_id, name, balance, currency, is_system, is_active, created_at FROM accounts
 WHERE id = $1
 LIMIT 1
 `
@@ -60,13 +97,14 @@ func (q *Queries) GetAccount(ctx context.Context, id pgtype.UUID) (Account, erro
 		&i.Balance,
 		&i.Currency,
 		&i.IsSystem,
+		&i.IsActive,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getAccountForUpdate = `-- name: GetAccountForUpdate :one
-SELECT id, owner_id, name, balance, currency, is_system, created_at FROM accounts
+SELECT id, owner_id, name, balance, currency, is_system, is_active, created_at FROM accounts
 WHERE id = $1
 LIMIT 1
 FOR UPDATE
@@ -82,13 +120,14 @@ func (q *Queries) GetAccountForUpdate(ctx context.Context, id pgtype.UUID) (Acco
 		&i.Balance,
 		&i.Currency,
 		&i.IsSystem,
+		&i.IsActive,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getSettlementAccount = `-- name: GetSettlementAccount :one
-SELECT id, owner_id, name, balance, currency, is_system, created_at FROM accounts
+SELECT id, owner_id, name, balance, currency, is_system, is_active, created_at FROM accounts
 WHERE is_system = TRUE AND name = 'Settlement Account'
 LIMIT 1
 `
@@ -103,13 +142,14 @@ func (q *Queries) GetSettlementAccount(ctx context.Context) (Account, error) {
 		&i.Balance,
 		&i.Currency,
 		&i.IsSystem,
+		&i.IsActive,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getSettlementAccountForUpdate = `-- name: GetSettlementAccountForUpdate :one
-SELECT id, owner_id, name, balance, currency, is_system, created_at FROM accounts
+SELECT id, owner_id, name, balance, currency, is_system, is_active, created_at FROM accounts
 WHERE is_system = TRUE AND name = 'Settlement Account'
 LIMIT 1
 FOR UPDATE
@@ -125,6 +165,24 @@ func (q *Queries) GetSettlementAccountForUpdate(ctx context.Context) (Account, e
 		&i.Balance,
 		&i.Currency,
 		&i.IsSystem,
+		&i.IsActive,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getTransaction = `-- name: GetTransaction :one
+SELECT id, description, operation_type, created_at FROM transactions
+WHERE id = $1
+`
+
+func (q *Queries) GetTransaction(ctx context.Context, id pgtype.UUID) (Transaction, error) {
+	row := q.db.QueryRow(ctx, getTransaction, id)
+	var i Transaction
+	err := row.Scan(
+		&i.ID,
+		&i.Description,
+		&i.OperationType,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -132,7 +190,7 @@ func (q *Queries) GetSettlementAccountForUpdate(ctx context.Context) (Account, e
 
 const listAccountsByOwner = `-- name: ListAccountsByOwner :many
 
-SELECT id, owner_id, name, balance, currency, is_system, created_at FROM accounts
+SELECT id, owner_id, name, balance, currency, is_system, is_active, created_at FROM accounts
 WHERE owner_id = $1
 ORDER BY created_at DESC
 `
@@ -154,6 +212,39 @@ func (q *Queries) ListAccountsByOwner(ctx context.Context, ownerID pgtype.UUID) 
 			&i.Balance,
 			&i.Currency,
 			&i.IsSystem,
+			&i.IsActive,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTransactionsByIDs = `-- name: ListTransactionsByIDs :many
+SELECT DISTINCT t.id, t.description, t.operation_type, t.created_at FROM transactions t
+INNER JOIN entries e ON e.transaction_id = t.id
+WHERE e.account_id = $1
+ORDER BY t.created_at DESC
+`
+
+func (q *Queries) ListTransactionsByIDs(ctx context.Context, accountID pgtype.UUID) ([]Transaction, error) {
+	rows, err := q.db.Query(ctx, listTransactionsByIDs, accountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Transaction
+	for rows.Next() {
+		var i Transaction
+		if err := rows.Scan(
+			&i.ID,
+			&i.Description,
+			&i.OperationType,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err

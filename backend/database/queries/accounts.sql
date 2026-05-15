@@ -34,3 +34,23 @@ SELECT * FROM accounts
 WHERE is_system = TRUE AND name = 'Settlement Account'
 LIMIT 1
 FOR UPDATE; -- lock prevents concurrent transactions from reading a stale balance.
+
+-- name: CreateTransaction :one
+INSERT INTO transactions (description, operation_type)
+VALUES ($1, $2)
+RETURNING *;
+
+-- name: GetTransaction :one
+SELECT * FROM transactions
+WHERE id = $1;
+
+-- name: ListTransactionsByIDs :many
+SELECT DISTINCT t.* FROM transactions t
+INNER JOIN entries e ON e.transaction_id = t.id
+WHERE e.account_id = $1
+ORDER BY t.created_at DESC;
+
+-- name: DeactivateAccount :exec
+UPDATE accounts
+SET is_active = false
+WHERE id = $1;

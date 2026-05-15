@@ -61,6 +61,7 @@ type Account struct {
 	Balance   pgtype.Numeric
 	Currency  string
 	IsSystem  bool
+	IsActive  bool
 	CreatedAt pgtype.Timestamptz
 }
 

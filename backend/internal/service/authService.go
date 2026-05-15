@@ -33,10 +33,7 @@ type authService struct {
 	store *db.Store
 }
 
-func NewAuthService(
-	store *db.Store,
-
-) AuthService {
+func NewAuthService(store *db.Store) AuthService {
 	return &authService{
 		store: store,
 	}

@@ -12,7 +12,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func Setup(authHandler *handler.AuthHandler) *gin.Engine {
+func Setup(authHandler *handler.AuthHandler, accountHandler *handler.AccountHandler) *gin.Engine {
 	docs.SwaggerInfo.BasePath = "/"
 
 	r := gin.Default()
@@ -35,6 +35,14 @@ func Setup(authHandler *handler.AuthHandler) *gin.Engine {
 	protected.Use(middleware.AuthMiddleware())
 	{
 		protected.POST("/auth/logout", authHandler.Logout)
+
+		// Accounts
+		protected.POST("/accounts", accountHandler.CreateAccount)
+		protected.GET("/accounts", accountHandler.ListAccounts)
+		protected.GET("/accounts/:id", accountHandler.GetAccount)
+		protected.GET("/accounts/:id/balance", accountHandler.GetAccountBalance)
+		protected.PATCH("/accounts/:id/deactivate", accountHandler.DeactivateAccount)
+
 	}
 
 	return r
