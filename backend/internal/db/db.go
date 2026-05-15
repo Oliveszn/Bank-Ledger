@@ -3,7 +3,8 @@ package db
 import (
 	"context"
 	"double-entry/internal/db/sqlc"
-	"log"
+	"double-entry/internal/logger"
+	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -23,15 +24,17 @@ func NewStore(db *pgxpool.Pool) *Store {
 func NewDB(databaseURL string) *pgxpool.Pool {
 	db, err := pgxpool.New(context.Background(), databaseURL)
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Error("failed to connect database", "error", err)
+		os.Exit(1)
 	}
 
 	err = db.Ping(context.Background())
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Error("failed to ping database", "error", err)
+		os.Exit(1)
 	}
 
-	log.Println("Connected to database")
+	logger.Log.Info("connected to database")
 
 	return db
 }

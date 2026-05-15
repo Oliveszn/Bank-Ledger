@@ -1,0 +1,186 @@
+basePath: /
+definitions:
+  dtos.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  dtos.LoginResponse:
+    properties:
+      email:
+        type: string
+      token:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dtos.LoginUserDto:
+    description: Login credentials for authenticating a user
+    properties:
+      email:
+        description: |-
+          User's email address
+          @example john.doe@example.com
+        example: john.doe@example.com
+        type: string
+      password:
+        description: |-
+          User's password
+          @example SecureP@ssw0rd
+        example: SecureP@ssw0rd
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dtos.RegisterResponse:
+    properties:
+      email:
+        type: string
+      token:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dtos.RegisterUserDto:
+    description: Registration data for creating a new user account
+    properties:
+      email:
+        description: |-
+          User's email address
+          @example john.doe@example.com
+        example: john.doe@example.com
+        type: string
+      password:
+        description: |-
+          User's password (min 8 characters)
+          @example SecureP@ssw0rd
+        example: SecureP@ssw0rd
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dtos.StructuredResponse:
+    description: Standard response format containing success status, HTTP status code,
+      message, and optional payload
+    properties:
+      message:
+        description: |-
+          Human-readable message
+          @example Operation completed successfully
+        example: Operation completed successfully
+        type: string
+      payload:
+        description: |-
+          Optional payload containing response data
+          @example {"id":1,"name":"Example Item"}
+      status:
+        description: |-
+          HTTP status code
+          @example 200
+        example: 200
+        type: integer
+      success:
+        description: |-
+          Whether the operation was successful
+          @example true
+        example: true
+        type: boolean
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: Double-entry accounting ledger
+  title: Double-Entry Bank Ledger API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Validates credentials and returns an access token + sets a refresh
+        token cookie.
+      parameters:
+      - description: Login payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.LoginUserDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponse'
+      summary: Authenticate a user
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Revokes the current refresh token and clears the cookie.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Logout current session
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account with the provided credentials.
+      parameters:
+      - description: Registration payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.RegisterUserDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.RegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - auth
+swagger: "2.0"
