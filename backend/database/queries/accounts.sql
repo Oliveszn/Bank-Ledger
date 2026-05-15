@@ -54,3 +54,9 @@ ORDER BY t.created_at DESC;
 UPDATE accounts
 SET is_active = false
 WHERE id = $1;
+
+-- name: ListTransactionsByAccount :many
+SELECT DISTINCT t.* FROM transactions t
+INNER JOIN entries e ON e.transaction_id = t.id
+WHERE e.account_id = $1
+ORDER BY t.created_at DESC;

@@ -12,7 +12,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func Setup(authHandler *handler.AuthHandler, accountHandler *handler.AccountHandler) *gin.Engine {
+func Setup(authHandler *handler.AuthHandler, accountHandler *handler.AccountHandler, txHandler *handler.TransactionHandler) *gin.Engine {
 	docs.SwaggerInfo.BasePath = "/"
 
 	r := gin.Default()
@@ -42,6 +42,13 @@ func Setup(authHandler *handler.AuthHandler, accountHandler *handler.AccountHand
 		protected.GET("/accounts/:id", accountHandler.GetAccount)
 		protected.GET("/accounts/:id/balance", accountHandler.GetAccountBalance)
 		protected.PATCH("/accounts/:id/deactivate", accountHandler.DeactivateAccount)
+
+		//Transactions
+		protected.POST("/transactions/deposit", txHandler.Deposit)
+		protected.POST("/transactions/withdraw", txHandler.Withdraw)
+		protected.POST("/transactions/transfer", txHandler.Transfer)
+		protected.GET("/transactions/:id", txHandler.GetTransaction)
+		protected.GET("/accounts/:account_id/transactions", txHandler.ListTransactions)
 
 	}
 

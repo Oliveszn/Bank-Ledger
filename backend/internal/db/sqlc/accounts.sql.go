@@ -225,6 +225,38 @@ func (q *Queries) ListAccountsByOwner(ctx context.Context, ownerID pgtype.UUID) 
 	return items, nil
 }
 
+const listTransactionsByAccount = `-- name: ListTransactionsByAccount :many
+SELECT DISTINCT t.id, t.description, t.operation_type, t.created_at FROM transactions t
+INNER JOIN entries e ON e.transaction_id = t.id
+WHERE e.account_id = $1
+ORDER BY t.created_at DESC
+`
+
+func (q *Queries) ListTransactionsByAccount(ctx context.Context, accountID pgtype.UUID) ([]Transaction, error) {
+	rows, err := q.db.Query(ctx, listTransactionsByAccount, accountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Transaction
+	for rows.Next() {
+		var i Transaction
+		if err := rows.Scan(
+			&i.ID,
+			&i.Description,
+			&i.OperationType,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listTransactionsByIDs = `-- name: ListTransactionsByIDs :many
 SELECT DISTINCT t.id, t.description, t.operation_type, t.created_at FROM transactions t
 INNER JOIN entries e ON e.transaction_id = t.id

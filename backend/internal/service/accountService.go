@@ -7,8 +7,6 @@ import (
 	"double-entry/internal/db/sqlc"
 	"double-entry/internal/logger"
 	"errors"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 var (
@@ -151,35 +149,4 @@ func (s *accountService) DeactivateAccount(ctx context.Context, userID, accountI
 
 	logger.Log.Info("account deactivated", "account_id", accountID, "user_id", userID)
 	return nil
-}
-
-func parsePgtypeUUID(id string) (pgtype.UUID, error) {
-	var uid pgtype.UUID
-	err := uid.Scan(id)
-	return uid, err
-}
-
-// numericToString converts pgtype.Numeric to a plain decimal string
-func numericToString(n pgtype.Numeric) string {
-	if !n.Valid {
-		return "0.0000"
-	}
-	value, err := n.Value()
-	if err != nil || value == nil {
-		return "0.0000"
-	}
-	return value.(string)
-}
-
-func toAccountResponse(a sqlc.Account) *dtos.AccountResponse {
-	return &dtos.AccountResponse{
-		ID:        a.ID.String(),
-		OwnerID:   a.OwnerID.String(),
-		Name:      a.Name,
-		Balance:   numericToString(a.Balance),
-		Currency:  a.Currency,
-		IsSystem:  a.IsSystem,
-		IsActive:  a.IsActive,
-		CreatedAt: a.CreatedAt.Time.Format("2006-01-02T15:04:05Z07:00"),
-	}
 }
