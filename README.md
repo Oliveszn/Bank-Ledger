@@ -29,7 +29,7 @@ Double-entry bookkeeping is a system where **every financial transaction affects
 
 > For every transaction: **Total Debits = Total Credits**
 
-Every entry in the ledger is either a **debit** or a **credit** — never both. This is enforced at the database level with a `CHECK` constraint:
+Every entry in the ledger is either a **debit** or a **credit**, never both. This is enforced at the database level with a `CHECK` constraint:
 
 ```sql
 CONSTRAINT check_single_side CHECK (
@@ -149,7 +149,7 @@ ledger/
 │   │   │   │   ├── models.go
 │   │   │   │   ├── transactions.sql.go
 │   │   │   │   └── users.sql.go
-│   │   │   └── store.go               # pgxpool + ExecTx for atomic operations
+│   │   │   └── db.go               # pgxpool + ExecTx for atomic operations
 │   │   ├── handler/
 │   │   │   ├── account_handler.go
 │   │   │   ├── auth_handler.go
@@ -300,13 +300,13 @@ erDiagram
 
 ### Key Design Decisions
 
-**Money stored as `NUMERIC(19,4)`** — never `FLOAT`. Floating point arithmetic is imprecise and will silently corrupt financial calculations. `NUMERIC` is exact.
+**Money stored as `NUMERIC(19,4)`** : never `FLOAT`. Floating point arithmetic is imprecise and will silently corrupt financial calculations. `NUMERIC` is exact.
 
-**Debit and credit as separate columns** — rather than a single signed `amount`, we use separate `debit` and `credit` columns. The `check_single_side` constraint ensures exactly one side is non-zero per entry. This maps directly to accounting ledger convention.
+**Debit and credit as separate columns** : rather than a single signed `amount`, we use separate `debit` and `credit` columns. The `check_single_side` constraint ensures exactly one side is non-zero per entry. This maps directly to accounting ledger convention.
 
-**`transactions` groups `entries`** — a single transfer creates one `transaction` and two `entries` (one debit, one credit). The transaction is the event; the entries are the bookkeeping.
+**`transactions` groups `entries`** : a single transfer creates one `transaction` and two `entries` (one debit, one credit). The transaction is the event; the entries are the bookkeeping.
 
-**`is_active` on accounts** — financial accounts are never hard deleted. Deactivation is a soft operation that prevents further transactions while preserving all history.
+**`is_active` on accounts** : financial accounts are never hard deleted. Deactivation is a soft operation that prevents further transactions while preserving all history.
 
 ---
 
@@ -593,12 +593,12 @@ api.interceptors.request.use((config) => {
 
 ## Key Technical Decisions
 
-**Atomic transactions via `ExecTx`** — deposit, withdrawal, and transfer all run inside a PostgreSQL transaction. If any step fails (e.g. the balance update fails after the entry is created), the entire operation rolls back. No partial states are ever committed.
+**Atomic transactions via `ExecTx`** : deposit, withdrawal, and transfer all run inside a PostgreSQL transaction. If any step fails (e.g. the balance update fails after the entry is created), the entire operation rolls back. No partial states are ever committed.
 
-**Ownership checks on every operation** — every protected service method verifies that the authenticated user owns the account before performing any operation. This is checked at the service layer, not just the handler layer.
+**Ownership checks on every operation** : every protected service method verifies that the authenticated user owns the account before performing any operation. This is checked at the service layer, not just the handler layer.
 
-**`pgtype.Numeric` for money** — sqlc maps `NUMERIC(19,4)` columns to `pgtype.Numeric`, a big-integer backed type with no floating point involvement. Arithmetic uses `math/big` throughout.
+**`pgtype.Numeric` for money** : sqlc maps `NUMERIC(19,4)` columns to `pgtype.Numeric`, a big-integer backed type with no floating point involvement. Arithmetic uses `math/big` throughout.
 
-**Structured logging with `slog`** — every service method logs its inputs and outcomes. Failed operations log at `WARN`, unexpected errors at `ERROR`. This makes tracing a transaction through the logs straightforward.
+**Structured logging with `slog`** : every service method logs its inputs and outcomes. Failed operations log at `WARN`, unexpected errors at `ERROR`. This makes tracing a transaction through the logs straightforward.
 
-**Stateless JWT auth** — the server holds no session state. The JWT contains the `user_id` claim and a 24-hour expiry. Logout is handled client-side by discarding the token. A token blacklist can be added later if needed.
+**Stateless JWT auth** : the server holds no session state. The JWT contains the `user_id` claim and a 24-hour expiry. Logout is handled client-side by discarding the token. A token blacklist can be added later if needed.
