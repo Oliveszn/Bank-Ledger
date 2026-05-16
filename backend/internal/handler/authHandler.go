@@ -31,9 +31,9 @@ func NewAuthHandler(
 // @Produce      json
 // @Param        body body dtos.RegisterUserDto true "Registration payload"
 // @Success      201  {object}  dtos.RegisterResponse
-// @Failure      400  {object}  dtos.ErrorResponse
-// @Failure      409  {object}  dtos.ErrorResponse
-// @Failure      500  {object}  dtos.ErrorResponse
+// @Failure      400  {object}  dtos.StructuredResponse
+// @Failure      409  {object}  dtos.StructuredResponse
+// @Failure      500  {object}  dtos.StructuredResponse
 // @Router       /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var dto dtos.RegisterUserDto
@@ -83,9 +83,9 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Produce      json
 // @Param        body body dtos.LoginUserDto true "Login payload"
 // @Success      200  {object}  dtos.LoginResponse
-// @Failure      400  {object}  dtos.ErrorResponse
-// @Failure      401  {object} dtos.ErrorResponse
-// @Failure      500  {object} dtos.ErrorResponse
+// @Failure      400  {object}  dtos.StructuredResponse
+// @Failure      401  {object} dtos.StructuredResponse
+// @Failure      500  {object} dtos.StructuredResponse
 // @Router       /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var dto dtos.LoginUserDto
@@ -125,7 +125,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @Security     BearerAuth
 // @Produce      json
 // @Success      200  {object}  dtos.StructuredResponse
-// @Failure      401  {object}  dtos.ErrorResponse
+// @Failure      401  {object}  dtos.StructuredResponse
 // @Router       /auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	userID, exists := c.Get("user_id")

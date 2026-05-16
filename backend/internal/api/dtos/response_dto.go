@@ -1,15 +1,5 @@
 package dtos
 
-// MessageResponse contains a simple status message.
-type MessageResponse struct {
-	Message string `json:"message"`
-}
-
-// ErrorResponse contains an API error message.
-type ErrorResponse struct {
-	Error string `json:"error"`
-}
-
 // StructuredResponse is the standard response format for all API endpoints
 // @Description Standard response format containing success status, HTTP status code, message, and optional payload
 type StructuredResponse struct {

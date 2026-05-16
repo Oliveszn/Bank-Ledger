@@ -20,6 +20,9 @@ import (
 // @description     Double-entry accounting ledger
 // @host            localhost:8000
 // @BasePath        /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	godotenv.Load()
 

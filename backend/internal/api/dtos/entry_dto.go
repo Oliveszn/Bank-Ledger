@@ -17,3 +17,17 @@ type ReconcileResponse struct {
 	Reconciled        bool   `json:"reconciled"`
 	Discrepancy       string `json:"discrepancy"`
 }
+
+type ListEntriesResponse struct {
+	Success bool            `json:"success"`
+	Status  int             `json:"status"`
+	Message string          `json:"message"`
+	Payload []EntryResponse `json:"payload"`
+}
+
+type ReconcileAccountResponse struct {
+	Success bool              `json:"success"`
+	Status  int               `json:"status"`
+	Message string            `json:"message"`
+	Payload ReconcileResponse `json:"payload"`
+}

@@ -1,9 +1,166 @@
 basePath: /
 definitions:
-  dtos.ErrorResponse:
+  dtos.AccountResponse:
     properties:
-      error:
+      balance:
         type: string
+      created_at:
+        type: string
+      currency:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      is_system:
+        type: boolean
+      name:
+        type: string
+      owner_id:
+        type: string
+    type: object
+  dtos.BalanceResponse:
+    properties:
+      account_id:
+        type: string
+      calculated_balance:
+        type: string
+    type: object
+  dtos.CreateAccountDto:
+    properties:
+      currency:
+        example: USD
+        type: string
+      name:
+        example: Savings Account
+        type: string
+    required:
+    - currency
+    - name
+    type: object
+  dtos.CreateAccountResponse:
+    properties:
+      message:
+        type: string
+      payload:
+        $ref: '#/definitions/dtos.AccountResponse'
+      status:
+        type: integer
+      success:
+        type: boolean
+    type: object
+  dtos.DepositDto:
+    properties:
+      account_id:
+        example: acc_123
+        type: string
+      amount:
+        example: 2500
+        type: number
+      description:
+        example: Salary deposit
+        type: string
+    required:
+    - account_id
+    - amount
+    type: object
+  dtos.DepositResponse:
+    properties:
+      message:
+        type: string
+      payload:
+        $ref: '#/definitions/dtos.TransactionResponse'
+      status:
+        type: integer
+      success:
+        type: boolean
+    type: object
+  dtos.EntryResponse:
+    properties:
+      account_id:
+        type: string
+      created_at:
+        type: string
+      credit:
+        type: string
+      debit:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+    type: object
+  dtos.GetAccountBalanceResponse:
+    properties:
+      message:
+        type: string
+      payload:
+        $ref: '#/definitions/dtos.BalanceResponse'
+      status:
+        type: integer
+      success:
+        type: boolean
+    type: object
+  dtos.GetAccountResponse:
+    properties:
+      message:
+        type: string
+      payload:
+        $ref: '#/definitions/dtos.AccountResponse'
+      status:
+        type: integer
+      success:
+        type: boolean
+    type: object
+  dtos.GetTransactionResponse:
+    properties:
+      message:
+        type: string
+      payload:
+        $ref: '#/definitions/dtos.TransactionResponse'
+      status:
+        type: integer
+      success:
+        type: boolean
+    type: object
+  dtos.ListAccountsResponse:
+    properties:
+      message:
+        type: string
+      payload:
+        items:
+          $ref: '#/definitions/dtos.AccountResponse'
+        type: array
+      status:
+        type: integer
+      success:
+        type: boolean
+    type: object
+  dtos.ListEntriesResponse:
+    properties:
+      message:
+        type: string
+      payload:
+        items:
+          $ref: '#/definitions/dtos.EntryResponse'
+        type: array
+      status:
+        type: integer
+      success:
+        type: boolean
+    type: object
+  dtos.ListTransactionsResponse:
+    properties:
+      message:
+        type: string
+      payload:
+        items:
+          $ref: '#/definitions/dtos.TransactionResponse'
+        type: array
+      status:
+        type: integer
+      success:
+        type: boolean
     type: object
   dtos.LoginResponse:
     properties:
@@ -32,6 +189,41 @@ definitions:
     required:
     - email
     - password
+    type: object
+  dtos.ReconcileAccountResponse:
+    properties:
+      message:
+        type: string
+      payload:
+        $ref: '#/definitions/dtos.ReconcileResponse'
+      status:
+        type: integer
+      success:
+        type: boolean
+    type: object
+  dtos.ReconcileDto:
+    properties:
+      account_id:
+        type: string
+      expected_balance:
+        minimum: 0
+        type: number
+    required:
+    - account_id
+    - expected_balance
+    type: object
+  dtos.ReconcileResponse:
+    properties:
+      account_id:
+        type: string
+      calculated_balance:
+        type: string
+      discrepancy:
+        type: string
+      expected_balance:
+        type: string
+      reconciled:
+        type: boolean
     type: object
   dtos.RegisterResponse:
     properties:
@@ -88,6 +280,77 @@ definitions:
         example: true
         type: boolean
     type: object
+  dtos.TransactionResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      entries:
+        items:
+          $ref: '#/definitions/dtos.EntryResponse'
+        type: array
+      id:
+        type: string
+      operation_type:
+        type: string
+    type: object
+  dtos.TransferDto:
+    properties:
+      amount:
+        example: 1500
+        type: number
+      description:
+        example: rent payment
+        type: string
+      from_account_id:
+        example: acc_123
+        type: string
+      to_account_id:
+        example: acc_456
+        type: string
+    required:
+    - amount
+    - from_account_id
+    - to_account_id
+    type: object
+  dtos.TransferResponse:
+    properties:
+      message:
+        type: string
+      payload:
+        $ref: '#/definitions/dtos.TransactionResponse'
+      status:
+        type: integer
+      success:
+        type: boolean
+    type: object
+  dtos.WithdrawDto:
+    properties:
+      account_id:
+        example: acc_123
+        type: string
+      amount:
+        example: 500
+        type: number
+      description:
+        example: ATM withdrawal
+        type: string
+    required:
+    - account_id
+    - amount
+    type: object
+  dtos.WithdrawResponse:
+    properties:
+      message:
+        type: string
+      payload:
+        $ref: '#/definitions/dtos.TransactionResponse'
+      status:
+        type: integer
+      success:
+        type: boolean
+    type: object
 host: localhost:8000
 info:
   contact: {}
@@ -95,6 +358,346 @@ info:
   title: Double-Entry Bank Ledger API
   version: "1.0"
 paths:
+  /accounts:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all accounts belonging to the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.ListAccountsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: List user accounts
+      tags:
+      - accounts
+    post:
+      consumes:
+      - application/json
+      description: Creates a new financial account for the authenticated user.
+      parameters:
+      - description: Account payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.CreateAccountDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.CreateAccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new account
+      tags:
+      - accounts
+  /accounts/{account_id}/entries:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves ledger entries for a specific account with pagination
+        support.
+      parameters:
+      - description: Account ID
+        in: path
+        name: account_id
+        required: true
+        type: string
+      - description: Number of records to return (1-100)
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Pagination offset (start index)
+        in: query
+        name: offset
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.ListEntriesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: List account entries
+      tags:
+      - entries
+  /accounts/{account_id}/transactions:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all transactions for a specific account owned by the
+        authenticated user.
+      parameters:
+      - description: Account ID
+        in: path
+        name: account_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.ListTransactionsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: List account transactions
+      tags:
+      - transactions
+  /accounts/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a single account belonging to the authenticated user.
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: Get an account
+      tags:
+      - accounts
+  /accounts/{id}/balance:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves the current balance of a specific account.
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAccountBalanceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: Get account balance
+      tags:
+      - accounts
+  /accounts/{id}/deactivate:
+    patch:
+      consumes:
+      - application/json
+      description: Deactivates a user-owned account. This action is irreversible.
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: Deactivate an account
+      tags:
+      - accounts
+  /accounts/reconcile:
+    post:
+      consumes:
+      - application/json
+      description: Compares expected balance with calculated ledger balance to verify
+        account integrity.
+      parameters:
+      - description: Reconciliation payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.ReconcileDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.ReconcileAccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: Reconcile account balance
+      tags:
+      - accounts
   /auth/login:
     post:
       consumes:
@@ -118,15 +721,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/dtos.ErrorResponse'
+            $ref: '#/definitions/dtos.StructuredResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/dtos.ErrorResponse'
+            $ref: '#/definitions/dtos.StructuredResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/dtos.ErrorResponse'
+            $ref: '#/definitions/dtos.StructuredResponse'
       summary: Authenticate a user
       tags:
       - auth
@@ -143,7 +746,7 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/dtos.ErrorResponse'
+            $ref: '#/definitions/dtos.StructuredResponse'
       security:
       - BearerAuth: []
       summary: Logout current session
@@ -171,16 +774,209 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/dtos.ErrorResponse'
+            $ref: '#/definitions/dtos.StructuredResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/dtos.ErrorResponse'
+            $ref: '#/definitions/dtos.StructuredResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/dtos.ErrorResponse'
+            $ref: '#/definitions/dtos.StructuredResponse'
       summary: Register a new user
       tags:
       - auth
+  /transactions/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a single transaction by ID for the authenticated user.
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetTransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a transaction
+      tags:
+      - transactions
+  /transactions/deposit:
+    post:
+      consumes:
+      - application/json
+      description: Deposits money into a user account and creates a transaction record.
+      parameters:
+      - description: Deposit payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.DepositDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.DepositResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: Deposit funds
+      tags:
+      - transactions
+  /transactions/transfer:
+    post:
+      consumes:
+      - application/json
+      description: Transfers money from one account to another and creates a transaction
+        record.
+      parameters:
+      - description: Transfer payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.TransferDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.TransferResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: Transfer funds between accounts
+      tags:
+      - transactions
+  /transactions/withdraw:
+    post:
+      consumes:
+      - application/json
+      description: Withdraws money from a user account and creates a transaction record.
+      parameters:
+      - description: Withdrawal payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.WithdrawDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.WithdrawResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: Withdraw funds
+      tags:
+      - transactions
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
