@@ -34,9 +34,9 @@ func NewEntryHandler(entrySvc service.EntryService) *EntryHandler {
 // @Failure      403         {object}  dtos.StructuredResponse
 // @Failure      404         {object}  dtos.StructuredResponse
 // @Failure      500         {object}  dtos.StructuredResponse
-// @Router       /accounts/{account_id}/entries [get]
+// @Router       /accounts/{id}/entries [get]
 func (h *EntryHandler) ListEntries(c *gin.Context) {
-	accountID, ok := parseUUID(c, "account_id")
+	accountID, ok := parseUUID(c, "id")
 	if !ok {
 		return
 	}

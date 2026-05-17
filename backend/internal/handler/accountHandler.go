@@ -177,10 +177,3 @@ func (h *AccountHandler) DeactivateAccount(c *gin.Context) {
 
 	api.Respond(c, http.StatusOK, "Account deactivated", nil)
 }
-
-//handler function
-// dto
-//service errors
-//route definitons
-//if auth middleware protects it
-//standard api response

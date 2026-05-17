@@ -181,9 +181,9 @@ func (h *TransactionHandler) GetTransaction(c *gin.Context) {
 // @Failure      403         {object}  dtos.StructuredResponse
 // @Failure      404         {object}  dtos.StructuredResponse
 // @Failure      500         {object}  dtos.StructuredResponse
-// @Router       /accounts/{account_id}/transactions [get]
+// @Router       /accounts/{id}/transactions [get]
 func (h *TransactionHandler) ListTransactions(c *gin.Context) {
-	accountID, ok := parseUUID(c, "account_id")
+	accountID, ok := parseUUID(c, "id")
 	if !ok {
 		return
 	}

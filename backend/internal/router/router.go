@@ -48,10 +48,10 @@ func Setup(authHandler *handler.AuthHandler, accountHandler *handler.AccountHand
 		protected.POST("/transactions/withdraw", txHandler.Withdraw)
 		protected.POST("/transactions/transfer", txHandler.Transfer)
 		protected.GET("/transactions/:id", txHandler.GetTransaction)
-		protected.GET("/accounts/:account_id/transactions", txHandler.ListTransactions)
+		protected.GET("/accounts/:id/transactions", txHandler.ListTransactions)
 
 		//Entries and reconcile
-		protected.GET("/accounts/:account_id/entries", entryHandler.ListEntries)
+		protected.GET("/accounts/:id/entries", entryHandler.ListEntries)
 		protected.POST("/accounts/reconcile", entryHandler.ReconcileAccount)
 
 	}

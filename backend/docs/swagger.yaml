@@ -418,104 +418,6 @@ paths:
       summary: Create a new account
       tags:
       - accounts
-  /accounts/{account_id}/entries:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves ledger entries for a specific account with pagination
-        support.
-      parameters:
-      - description: Account ID
-        in: path
-        name: account_id
-        required: true
-        type: string
-      - description: Number of records to return (1-100)
-        in: query
-        name: limit
-        required: true
-        type: integer
-      - description: Pagination offset (start index)
-        in: query
-        name: offset
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dtos.ListEntriesResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dtos.StructuredResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dtos.StructuredResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dtos.StructuredResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dtos.StructuredResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dtos.StructuredResponse'
-      security:
-      - BearerAuth: []
-      summary: List account entries
-      tags:
-      - entries
-  /accounts/{account_id}/transactions:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves all transactions for a specific account owned by the
-        authenticated user.
-      parameters:
-      - description: Account ID
-        in: path
-        name: account_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dtos.ListTransactionsResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dtos.StructuredResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dtos.StructuredResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dtos.StructuredResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dtos.StructuredResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dtos.StructuredResponse'
-      security:
-      - BearerAuth: []
-      summary: List account transactions
-      tags:
-      - transactions
   /accounts/{id}:
     get:
       consumes:
@@ -649,6 +551,104 @@ paths:
       summary: Deactivate an account
       tags:
       - accounts
+  /accounts/{id}/entries:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves ledger entries for a specific account with pagination
+        support.
+      parameters:
+      - description: Account ID
+        in: path
+        name: account_id
+        required: true
+        type: string
+      - description: Number of records to return (1-100)
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Pagination offset (start index)
+        in: query
+        name: offset
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.ListEntriesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: List account entries
+      tags:
+      - entries
+  /accounts/{id}/transactions:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all transactions for a specific account owned by the
+        authenticated user.
+      parameters:
+      - description: Account ID
+        in: path
+        name: account_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.ListTransactionsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.StructuredResponse'
+      security:
+      - BearerAuth: []
+      summary: List account transactions
+      tags:
+      - transactions
   /accounts/reconcile:
     post:
       consumes:
