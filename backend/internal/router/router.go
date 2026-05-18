@@ -45,6 +45,7 @@ func Setup(authHandler *handler.AuthHandler, accountHandler *handler.AccountHand
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 	{
+		protected.GET("/me", authHandler.Me)
 		protected.POST("/auth/logout", authHandler.Logout)
 
 		// Accounts

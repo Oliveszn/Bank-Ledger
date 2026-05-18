@@ -39,3 +39,7 @@ type LoginResponse struct {
 type TokenResponse struct {
 	Token string `json:"token"`
 }
+
+type MeResponse struct {
+	UserID string `json:"user_id"`
+}

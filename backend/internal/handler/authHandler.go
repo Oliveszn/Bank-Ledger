@@ -142,3 +142,25 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 
 	api.Respond(c, http.StatusOK, "Logged out successfully", nil)
 }
+
+// Me godoc
+// @Summary      Get current user
+// @Description  Returns the identity of the currently authenticated user from the token claims.
+// @Tags         auth
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  dtos.MeRespons
+// @Failure      401  {object}  dtos.StructuredResponse
+// @Router       /auth/me [get]
+func (h *AuthHandler) Me(c *gin.Context) {
+	userID := c.GetString("user_id")
+
+	if userID == "" {
+		api.RespondError(c, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	api.Respond(c, http.StatusOK, "user identity retrieved", gin.H{
+		"user_id": userID,
+	})
+}
