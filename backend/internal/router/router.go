@@ -3,7 +3,9 @@ package router
 import (
 	"double-entry/internal/handler"
 	"double-entry/internal/middleware"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	docs "double-entry/docs"
@@ -16,6 +18,15 @@ func Setup(authHandler *handler.AuthHandler, accountHandler *handler.AccountHand
 	docs.SwaggerInfo.BasePath = "/"
 
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173", "http://127.0.0.1:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "server running"})

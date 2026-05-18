@@ -53,8 +53,13 @@ func main() {
 
 	r := router.Setup(authHandler, accountHandler, txHandler, entryHandler)
 
-	if err := r.Run(":8000"); err != nil {
-		logger.Log.Error("failed to connect database", "error", err)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+
+	if err := r.Run(":" + port); err != nil {
+		logger.Log.Error("failed to start server", "error", err)
 		os.Exit(1)
 	}
 }
