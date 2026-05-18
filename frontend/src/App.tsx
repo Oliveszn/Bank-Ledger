@@ -1,8 +1,37 @@
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { useAuthStore } from "./store/auth-store";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { DashboardPage } from "./pages/Dashboard";
+import { AuthPage } from "./pages/AuthPage";
+
 function App() {
+  const { isAuthenticated } = useAuthStore();
   return (
-    <>
-      <h1 className="text-3xl font-bold underline">Hello world!</h1>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <AuthPage />
+            )
+          }
+        />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
