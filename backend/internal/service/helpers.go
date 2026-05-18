@@ -4,6 +4,8 @@ import (
 	"double-entry/internal/api/dtos"
 	"double-entry/internal/db/sqlc"
 	"errors"
+
+	"fmt"
 	"math"
 	"math/big"
 
@@ -13,11 +15,19 @@ import (
 // toNumeric converts a float64 amount to pgtype.Numeric
 func toNumeric(amount float64) (pgtype.Numeric, error) {
 	var n pgtype.Numeric
-	err := n.Scan(amount)
+	// err := n.Scan(amount)
+	err := n.Scan(fmt.Sprintf("%.2f", amount))
 	if err != nil {
 		return pgtype.Numeric{}, errors.New("failed to convert amount")
 	}
 	return n, nil
+}
+
+// ZeroNumeric sets a field to 0 used for debit/credit fields as the db doesn't accept null as a value
+func zeroNumeric() pgtype.Numeric {
+	var n pgtype.Numeric
+	n.Scan("0")
+	return n
 }
 
 // negateNumeric flips the sign of a pgtype.Numeric for subtracting balances

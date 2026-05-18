@@ -174,7 +174,7 @@ func (h *TransactionHandler) GetTransaction(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        account_id  path      string  true  "Account ID"
+// @Param        id  path      string  true  "Account ID"
 // @Success      200         {object}  dtos.ListTransactionsResponse
 // @Failure      400         {object}  dtos.StructuredResponse
 // @Failure      401         {object}  dtos.StructuredResponse

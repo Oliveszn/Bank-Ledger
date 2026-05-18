@@ -74,8 +74,9 @@ func (s *transactionService) Deposit(ctx context.Context, userID string, dto dto
 
 		// 2. Credit the user account (money coming in)
 		creditEntry, err := q.CreateEntry(ctx, sqlc.CreateEntryParams{
-			AccountID:     accountUID,
-			Debit:         pgtype.Numeric{Valid: false},
+			AccountID: accountUID,
+			// Debit:         pgtype.Numeric{Valid: false},
+			Debit:         zeroNumeric(),
 			Credit:        amount,
 			TransactionID: txUID,
 			OperationType: sqlc.OperationTypeDeposit,
@@ -152,9 +153,10 @@ func (s *transactionService) Withdraw(ctx context.Context, userID string, dto dt
 
 		// Debit the account (money going out)
 		debitEntry, err := q.CreateEntry(ctx, sqlc.CreateEntryParams{
-			AccountID:     accountUID,
-			Debit:         amount,
-			Credit:        pgtype.Numeric{Valid: false},
+			AccountID: accountUID,
+			Debit:     amount,
+			// Credit:        pgtype.Numeric{Valid: false},
+			Credit:        zeroNumeric(),
 			TransactionID: txUID,
 			OperationType: sqlc.OperationTypeWithdrawal,
 			Description:   pgtype.Text{String: dto.Description, Valid: dto.Description != ""},
@@ -252,9 +254,10 @@ func (s *transactionService) Transfer(ctx context.Context, userID string, dto dt
 
 		// Debit the sender
 		debitEntry, err := q.CreateEntry(ctx, sqlc.CreateEntryParams{
-			AccountID:     fromUID,
-			Debit:         amount,
-			Credit:        pgtype.Numeric{Valid: false},
+			AccountID: fromUID,
+			Debit:     amount,
+			// Credit:        pgtype.Numeric{Valid: false},
+			Credit:        zeroNumeric(),
 			TransactionID: txUID,
 			OperationType: sqlc.OperationTypeTransfer,
 			Description:   pgtype.Text{String: dto.Description, Valid: dto.Description != ""},
@@ -265,8 +268,9 @@ func (s *transactionService) Transfer(ctx context.Context, userID string, dto dt
 
 		// Credit the receiver
 		creditEntry, err := q.CreateEntry(ctx, sqlc.CreateEntryParams{
-			AccountID:     toUID,
-			Debit:         pgtype.Numeric{Valid: false},
+			AccountID: toUID,
+			// Debit:         pgtype.Numeric{Valid: false},
+			Debit:         zeroNumeric(),
 			Credit:        amount,
 			TransactionID: txUID,
 			OperationType: sqlc.OperationTypeTransfer,

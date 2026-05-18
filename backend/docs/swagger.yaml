@@ -560,7 +560,7 @@ paths:
       parameters:
       - description: Account ID
         in: path
-        name: account_id
+        name: id
         required: true
         type: string
       - description: Number of records to return (1-100)
@@ -614,7 +614,7 @@ paths:
       parameters:
       - description: Account ID
         in: path
-        name: account_id
+        name: id
         required: true
         type: string
       produces:

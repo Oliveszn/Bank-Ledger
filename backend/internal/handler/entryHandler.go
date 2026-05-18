@@ -25,7 +25,7 @@ func NewEntryHandler(entrySvc service.EntryService) *EntryHandler {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        account_id  path      string  true  "Account ID"
+// @Param        id  path      string  true  "Account ID"
 // @Param        limit       query     int     true  "Number of records to return (1-100)"
 // @Param        offset      query     int     true  "Pagination offset (start index)"
 // @Success      200         {object}  dtos.ListEntriesResponse

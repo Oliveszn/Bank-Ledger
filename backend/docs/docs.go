@@ -414,7 +414,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Account ID",
-                        "name": "account_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -495,7 +495,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Account ID",
-                        "name": "account_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
