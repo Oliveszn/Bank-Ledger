@@ -31,6 +31,13 @@ export function AuthPage() {
           </div>
         </div>
 
+        <div className="md:hidden mb-6 rounded-lg border border-border bg-muted/40 px-3 py-2">
+          <p className="text-xs text-muted-foreground text-center">
+            For the best experience, we recommend using a laptop or larger
+            screen.
+          </p>
+        </div>
+
         {/* Card */}
         <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
           {/* Tab switcher */}

@@ -6,6 +6,7 @@ import {
   ScrollText,
   CheckSquare,
   LogOut,
+  X,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useAuthStore } from "@/store/auth-store";
@@ -19,12 +20,29 @@ const navItems = [
   { to: "/reconcile", icon: CheckSquare, label: "Reconcile" },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function Sidebar({ open, onClose }: SidebarProps) {
   const { mutate: logout, isPending: loading } = useLogout();
   const { user } = useAuthStore();
 
   return (
-    <aside className="flex flex-col h-full w-56 border-r border-border bg-card px-3 py-5 shrink-0">
+    // <aside className="flex flex-col h-full w-56 border-r border-border bg-card px-3 py-5 shrink-0">
+    <aside
+      className={cn(
+        "fixed md:static z-50 top-0 left-0 h-full w-56 border-r border-border bg-card px-3 py-5 flex flex-col transition-transform duration-200",
+        open ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+      )}
+    >
+      <div className="md:hidden flex justify-end mb-4">
+        <button onClick={onClose}>
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
       <div className="flex items-center gap-2 px-2 mb-8">
         <div className="h-6 w-6 rounded bg-primary flex items-center justify-center shrink-0">
           <span className="text-primary-foreground text-xs font-mono font-medium">
@@ -42,6 +60,7 @@ export function Sidebar() {
           <NavLink
             key={to}
             to={to}
+            onClick={onClose}
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors",
