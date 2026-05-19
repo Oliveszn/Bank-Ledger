@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { loginSchema, type LoginFormValues } from "@/lib/schema";
+import { loginSchema, type LoginFormValues } from "@/lib/authSchema";
 import { useLogin } from "@/hooks/useAuth";
 
 export function LoginForm() {

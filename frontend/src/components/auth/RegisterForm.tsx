@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useRegister } from "../../hooks/useAuth";
-import { registerSchema, type RegisterFormValues } from "@/lib/schema";
+import { registerSchema, type RegisterFormValues } from "@/lib/authSchema";
 
 export function RegisterForm() {
   const { mutate: registerUser, isPending: loading, error } = useRegister();
