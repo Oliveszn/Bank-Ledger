@@ -3,6 +3,7 @@ import { useAuthStore } from "./store/auth-store";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { DashboardPage } from "./pages/Dashboard";
 import { AuthPage } from "./pages/AuthPage";
+import { TransactionsPage } from "./pages/TransactionPage";
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -25,6 +26,15 @@ function App() {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/transactions"
+          element={
+            <ProtectedRoute>
+              <TransactionsPage />
             </ProtectedRoute>
           }
         />
