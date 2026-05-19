@@ -4,6 +4,8 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { DashboardPage } from "./pages/Dashboard";
 import { AuthPage } from "./pages/AuthPage";
 import { TransactionsPage } from "./pages/TransactionPage";
+import { EntriesPage } from "./pages/EnriesPage";
+import { ReconcilePage } from "./pages/ReconcilePage";
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -35,6 +37,24 @@ function App() {
           element={
             <ProtectedRoute>
               <TransactionsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/entries"
+          element={
+            <ProtectedRoute>
+              <EntriesPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reconcile"
+          element={
+            <ProtectedRoute>
+              <ReconcilePage />
             </ProtectedRoute>
           }
         />
